@@ -119,7 +119,7 @@
         Viser planlagte
       </button>
       <select id="nameDropdown">
-        <option value="">Select a name</option>
+        <option value="">All</option>
       </select>
     </div>
     <div class="planner">
@@ -170,7 +170,7 @@
       dates = window.dates;
 
       const distinctNames = [
-        ...new Set(dates.map((obj) => dates.assigned)),
+        ...new Set(dates.map((d) => d.assigned)),
       ];
 
       //##dates##
@@ -452,7 +452,8 @@
         function handleChange(event) {
           const selectedName = event.target.value;
           console.log('Selected:', selectedName);
-          // Do something with the selected name
+          window.currentAssigned = selectedName;
+          runthis(window.currentStartDay, window.currentAssigned);
         }
 
         // Attach event listener
@@ -510,7 +511,7 @@
         text-align: center;
         margin-top: 16px;
       ">
-      V1.1.2</span
+      V1.1.3</span
     >
   </body>
 </html>
