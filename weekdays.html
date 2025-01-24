@@ -169,9 +169,7 @@
       window.dates = [];
       dates = window.dates;
 
-      const distinctNames = [
-        ...new Set(dates.map((d) => d.assigned)),
-      ];
+  
 
       //##dates##
 
@@ -179,6 +177,10 @@
         debugger;
         let showPlanned = 0;
         const warningEstimatMsDailymax = 21600000; // 6 hours
+
+        const distinctNames = [
+        ...new Set(dates.map((d) => d.assigned)),
+        ];
 
         window.jobUrlPrefix =
           'https://app.ninox.com/#/teams/YWCzwq4FcnwWeXwbp/database/x5hqdm6zeqtz/module/Z/view/KlHGseS4XsiJ2udr/node/Z';
