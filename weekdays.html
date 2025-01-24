@@ -445,6 +445,9 @@
         const dropdown = document.getElementById('nameDropdown');
         distinctNames.forEach((name) => {
           const option = document.createElement('option');
+          if(name === '' || name === null) {
+            return;
+          }
           option.value = name;
           option.textContent = name;
           dropdown.appendChild(option);
@@ -455,11 +458,19 @@
           const selectedName = event.target.value;
           console.log('Selected:', selectedName);
           window.currentAssigned = selectedName;
+          sessionStorage.setItem('lastSelectedName', selectedName);
+          if(selectedName === '') {
+            window.currentAssigned = null;
+          }
           runthis(window.currentStartDay, window.currentAssigned);
         }
 
         // Attach event listener
         dropdown.addEventListener('change', handleChange);
+        const lastSelectedName = sessionStorage.getItem('lastSelectedName');
+        if (lastSelectedName) {
+          dropdown.value = lastSelectedName;
+        }
 
         function getUniqueAssignedValues(entries) {
           const assignedValues = entries.map((entry) => entry.assigned); // Extract assigned values
