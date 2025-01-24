@@ -332,6 +332,8 @@
             day.querySelector('.date').textContent = date;
             day.querySelector('.entries').innerHTML = ''; // Clear existing entries
             calendarEntries.forEach((entry) => {
+
+              const estimatedMs = entry.estimateMs;
               try {
                 if (showPlanned === 0) {
                   // vis kun planlagt
@@ -381,16 +383,17 @@
                   // tempHtml += '<span class="estimate">Total used: ' + entry.used + '</span>  ';
 
                   if (entry.type !== 'task') {
-                    entry.estimateMs = entry.estimateMs - entry.tasksEstimateMs;
+                    estimateMs = estimateMs - entry.tasksEstimateMs;
                   }
 
+                  // job/task is spread over multiple days
                   if (entry.t > 1) {
-                    totalDailyEstimate += entry.estimateMs / entry.t;
+                    totalDailyEstimate += estimateMs / entry.t;
                     tempHtml +=
                       '<span class="estimate">Estimate daily / total : ' +
-                      msToHoursAndMinutes(entry.estimateMs / entry.t) +
+                      msToHoursAndMinutes(estimateMs / entry.t) +
                       ' / ' +
-                      msToHoursAndMinutes(entry.estimateMs) +
+                      msToHoursAndMinutes(estimateMs) +
                       '</span> ';
                     tempHtml +=
                       '<div class="ecount"> (' +
@@ -399,10 +402,10 @@
                       entry.t +
                       ')</div>';
                   } else {
-                    totalDailyEstimate += entry.estimateMs;
+                    totalDailyEstimate += estimateMs;
                     tempHtml +=
                       '<span class="estimate">Total estimate: ' +
-                      msToHoursAndMinutes(entry.estimateMs) +
+                      msToHoursAndMinutes(estimateMs) +
                       '</span>  ';
                   }
 
