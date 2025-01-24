@@ -239,7 +239,7 @@
             let n = 0;
             let t = 0;
             while (td <= endDate) {
-              const isFridayButNotLastDay = currentDate.getDay() === 5 && td < endDate;
+              const isFridayButNotLastDay = td.getDay() === 5 && td < endDate;
               if (isWeekday(td) && !isFridayButNotLastDay) {
                 t++;
               }
