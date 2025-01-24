@@ -239,7 +239,8 @@
             let n = 0;
             let t = 0;
             while (td <= endDate) {
-              if (isWeekday(td)) {
+              const isFridayButNotLastDay = currentDate.getDay() === 5 && currentDate < endDate;
+              if (isWeekday(td) && !isFridayButNotLastDay) {
                 t++;
               }
               td.setDate(td.getDate() + 1);
@@ -247,7 +248,9 @@
             let currentDate = new Date(startDate);
             // Loop through the date range
             while (currentDate <= endDate) {
-              if (isWeekday(currentDate)) {
+
+              const isFridayButNotLastDay = currentDate.getDay() === 5 && currentDate < endDate;
+              if (isWeekday(currentDate) && !isFridayButNotLastDay) {
                 calendarEntries.push({
                   type: entry.type,
                   name: entry.name,
