@@ -118,6 +118,9 @@
       <button id="forward">En uge frem</button>&nbsp;<button id="showPlanned">
         Viser planlagte
       </button>
+      <select id="nameDropdown">
+        <option value="">Select a name</option>
+      </select>
     </div>
     <div class="planner">
       <div class="day" data-day="Monday">
@@ -165,7 +168,10 @@
     <script>
       window.dates = [];
       dates = window.dates;
-   
+
+      const distinctNames = [
+        ...new Set(arrayOfObjects.map((obj) => dates.assigned)),
+      ];
 
       //##dates##
 
@@ -248,8 +254,8 @@
             let currentDate = new Date(startDate);
             // Loop through the date range
             while (currentDate <= endDate) {
-
-              const isFridayButNotLastDay = currentDate.getDay() === 5 && currentDate < endDate;
+              const isFridayButNotLastDay =
+                currentDate.getDay() === 5 && currentDate < endDate;
               if (isWeekday(currentDate) && !isFridayButNotLastDay) {
                 calendarEntries.push({
                   type: entry.type,
@@ -433,6 +439,25 @@
           });
         }
 
+        // Populate the dropdown
+        const dropdown = document.getElementById('nameDropdown');
+        distinctNames.forEach((name) => {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          dropdown.appendChild(option);
+        });
+
+        // Function to call on change
+        function handleChange(event) {
+          const selectedName = event.target.value;
+          console.log('Selected:', selectedName);
+          // Do something with the selected name
+        }
+
+        // Attach event listener
+        dropdown.addEventListener('change', handleChange);
+
         function getUniqueAssignedValues(entries) {
           const assignedValues = entries.map((entry) => entry.assigned); // Extract assigned values
           const uniqueAssignedValues = [...new Set(assignedValues)]; // Use Set to get unique values
@@ -477,7 +502,15 @@
         runthis(window.currentStartDay, window.currentAssigned);
       })();
     </script>
-    <span style="font-size: 10px; color: #313131; display: block; text-align: center; margin-top: 16px;">
-      V1.1.1
+    <span
+      style="
+        font-size: 10px;
+        color: #313131;
+        display: block;
+        text-align: center;
+        margin-top: 16px;
+      ">
+      V1.1.2</span
+    >
   </body>
 </html>
