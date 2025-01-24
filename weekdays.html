@@ -170,7 +170,7 @@
       dates = window.dates;
 
       const distinctNames = [
-        ...new Set(arrayOfObjects.map((obj) => dates.assigned)),
+        ...new Set(dates.map((obj) => dates.assigned)),
       ];
 
       //##dates##
