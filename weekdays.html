@@ -1,0 +1,452 @@
+<style>
+h1 {
+  text-align: center;
+}
+h3 {
+  text-align: center !important;
+  margin: 10px 0;
+}
+h4 {
+  font-size: 15px;
+line-height: 20px;
+  text-align: left;
+  margin: 0;
+overflow-wrap: break-word; /* Break long words if necessary (modern standard) */
+word-wrap: break-word;     /* Compatibility with older browsers */
+word-break: break-word;    /* Break long words between letters (if needed) */
+white-space: normal;       /* Allow text to wrap onto multiple lines */
+}
+span {
+line-height:18px;
+}
+.date {
+  width: 100%;
+  display: block;
+  text-align: center;
+  font-size: small;
+}
+.planner {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.day {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  min-height: 100px;
+  position: relative;
+}
+.entry {
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 3px;
+  font-size: smaller;
+  color: #fff;
+  cursor: pointer;
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+.planning {
+  opacity: 0.6;
+  border: 4px dashed red;
+background-color: orange;
+}
+.header {
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.dailyEstimate {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+.info {
+    margin: 0 auto 0 0;
+}
+@media (max-width: 1024px) {
+  .planner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .planner {
+    grid-template-columns: 1fr;
+  }
+}
+.ecount {
+  font-size: smaller;
+  color: #fff;
+  display: inline-block;
+  text-align: right;
+  width:100%;
+}
+.status{
+  font-size: smaller;
+  color: #fff;
+  background:black;
+  padding: 2px 5px;
+  border-radius: 5px;
+border:1px solid gray;
+}
+.buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  margin-top:16px;
+  gap: 8px;
+}
+.buttons button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="buttons">
+<button id="back">En uge tilbage</button>
+<button id="today">idag</button>
+<button id="forward">En uge frem</button>&nbsp;<button id="showPlanned">Viser planlagte</button>
+
+</div>
+<div class="planner">
+<div class="day" data-day="Monday">
+  <div class="header">
+    <h3>Monday</h3>
+    <span class="date"></span>
+    <span class="dailyEstimate"></span>
+  </div>
+  <div class="entries"></div>
+</div>
+<div class="day" data-day="Tuesday">
+  <div class="header">
+    <h3>Tuesday</h3>
+    <span class="date"></span>
+    <span class="dailyEstimate"></span>
+  </div>
+  <div class="entries"></div>
+</div>
+<div class="day" data-day="Wednesday">
+  <div class="header">
+    <h3>Wednesday</h3>
+    <span class="date"></span>
+    <span class="dailyEstimate"></span>
+  </div>
+  <div class="entries"></div>
+</div>
+<div class="day" data-day="Thursday">
+  <div class="header">
+    <h3>Thursday</h3>
+    <span class="date"></span>
+    <span class="dailyEstimate"></span>
+  </div>
+  <div class="entries"></div>
+</div>
+<div class="day" data-day="Friday">
+  <div class="header">
+    <h3>Friday</h3>
+    <span class="date"></span>
+    <span class="dailyEstimate"></span>
+  </div>
+  <div class="entries"></div>
+</div>
+</div>
+
+<script>
+ window.dates = [];
+dates = window.dates;
+
+##dates##
+
+(function runimmed() {
+debugger
+let showPlanned = 0;
+const warningEstimatMsDailymax = 21600000; // 6 hours
+
+window.jobUrlPrefix =
+  'https://app.ninox.com/#/teams/YWCzwq4FcnwWeXwbp/database/x5hqdm6zeqtz/module/Z/view/KlHGseS4XsiJ2udr/node/Z';
+
+window.taskUrlPrefix =
+  'https://app.ninox.com/#/teams/YWCzwq4FcnwWeXwbp/database/x5hqdm6zeqtz/module/BB/view/z5sJXMv2QzbMxaW7/node/BB';
+
+
+ window.currentStartDay = Date.now();
+ window.currentAssigned = ##userName##;
+
+// Function to convert Unix timestamp to Date object
+function changeShowPlanned() {
+      showPlanned++;
+      if (showPlanned >2) {
+      showPlanned = 0;
+      }
+
+      const btn = document.getElementById('showPlanned');
+      if(showPlanned === 0) {
+          btn.innerText = 'Viser planlagte';
+      };
+      if(showPlanned === 1) {
+          btn.innerText = 'Viser ikke planlagte';
+      }
+      if(showPlanned === 2) {
+          btn.innerText = 'Viser alle';
+      }
+}
+
+// Function to convert Unix timestamp to Date object
+function unixToDate(unix) {
+  return new Date(unix);
+}
+
+// Function to check if a date is a weekday (Monday to Friday)
+function isWeekday(date) {
+  const day = date.getDay();
+  return day >= 1 && day <= 5; // 1 = Monday, 5 = Friday
+}
+
+function msToHoursAndMinutes(ms) {
+    const hours = Math.floor(ms / (60 * 60 * 1000)); // Get whole hours
+    const minutes = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000)); // Get remaining minutes
+    return `${hours}:${minutes.toString().padStart(2, '0')}`; // Format minutes to 2 digits
+}
+
+function decimalToHours(decimal) {
+    const hoursDec = decimal / 3600000
+    const hours = Math.floor(hoursDec); // Get the whole number part as hours
+    const minutes = Math.round((decimal - hours) * 60); // Get the decimal part and convert to minutes
+    return `${hours}:${minutes} `;
+}
+
+// Function to create calendar entries
+function createCalendarEntries(dates) {
+  let calendarEntries = [];
+
+  dates.forEach((entry) => {
+    const startDate = unixToDate(entry.startUnix);
+    const endDate = entry.endUnix
+      ? unixToDate(entry.endUnix)
+      : new Date();
+
+    let td = new Date(startDate);
+    let n = 0;
+    let t = 0;
+    while (td <= endDate) {
+      if (isWeekday(td)) {
+        t++;
+      }
+      td.setDate(td.getDate() + 1);
+    }
+    let currentDate = new Date(startDate);
+    // Loop through the date range
+    while (currentDate <= endDate) {
+      if (isWeekday(currentDate)) {
+        calendarEntries.push({
+          type: entry.type,
+          name: entry.name,
+          status: entry.status,
+          client: entry.client,
+          project: entry.project,
+          used: entry.used,
+          estimateMs: entry.estimateMs,
+          tasksEstimateMs: entry.tasksEstimateMs,
+          usedMs: entry.usedMs,
+          date: currentDate.toLocaleDateString('da-DK'),
+          assigned: entry.assigned,
+          id: entry.id,
+          n: ++n,
+          t,
+        });
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  });
+
+  return calendarEntries;
+}
+
+// Generate calendar entries
+const calendarEntries = createCalendarEntries(dates);
+
+function generateColor(name) {
+  const hash = Array.from(name).reduce(
+    (acc, char) => acc + char.charCodeAt(0),
+    0
+  );
+
+  // Generate RGB values based on the hash
+  const red = Math.max(0, (hash * 3) % 128); // Scale and wrap red value (0-127)
+  const green = Math.max(0, (hash * 5) % 128); // Scale and wrap green value (0-127)
+  const blue = Math.max(50, (hash * 7) % 256); // Ensure blue is at least 50 for contrast
+
+  // Ensure gray shades
+  if (red === green && green === blue) {
+    // If all are equal, adjust to create a gray shade
+    return `rgb(${red}, ${red}, ${red})`; // Return gray
+  }
+
+  return `rgb(${red}, ${green}, ${blue})`; // Return the RGB color
+}
+
+// Get the current week number and dates
+function getWeekInfo(start) {
+  const now = new Date(start);
+  const startOfWeek = now.getDate() - now.getDay() + 1; // Adjust to get Monday
+  let weekDates = [];
+
+  for (let ix = 0; ix < 5; ix++) {
+    const date = new Date(now.setDate(startOfWeek + ix));
+    weekDates.push(date.toLocaleDateString('da-DK')); // Format: YYYY-MM-DD
+  }
+
+  return weekDates;
+}
+
+function runthis(start, assigned = null) {
+
+  debugger
+  // Populate the planner with entries
+  const weekDates = getWeekInfo(start);
+  const dayElements = document.querySelectorAll('.day');
+
+  dayElements.forEach((day, index) => {
+    let totalDailyEstimate = 0;
+    const date = weekDates[index];
+    day.querySelector('.date').textContent = date;
+    day.querySelector('.entries').innerHTML = ''; // Clear existing entries
+    calendarEntries.forEach((entry) => {
+
+      try {
+        if (showPlanned === 0) {
+        // vis kun planlagt
+        if (entry.status === 'Planning') 
+          return;
+        };
+        if (showPlanned === 1) {
+        // vis kun planning
+        if (entry.status !== 'Planning') 
+          return;
+        };
+        entry.assigned = entry.assigned.trim();
+
+        if (
+          entry.date === date &&
+          (assigned === null || entry.assigned === assigned )
+        ) {
+          // Create a new entry element
+          const entryDiv = document.createElement('div');
+
+          let entryName = entry.name;
+
+          if (entry.status === 'Planning') {
+            entryDiv.className = 'entry planning';
+          } else {
+            entryDiv.className = 'entry ';
+            entryDiv.style.backgroundColor = generateColor(
+            entry.name + entry.id
+          );
+          }
+          if (entry.type === 'task') {
+            entryName  = "Task: " + entryName;
+          }
+          let tempHtml =  '<h4>' + entryName + '</h4>' ;
+
+          tempHtml += '<span><span class="status">' + entry.status + '</span>  ' + entry.assigned + '</span>';
+          tempHtml += '<span class="info">' + entry.client+ ' / ' +  entry.project  + '</span>';
+  
+    
+         // tempHtml += '<span class="estimate">Total used: ' + entry.used + '</span>  ';
+
+        if (entry.type !== "task") {
+
+          entry.estimateMs = entry.estimateMs - entry.tasksEstimateMs;
+
+        }
+
+          if (entry.t > 1) {
+           totalDailyEstimate += entry.estimateMs / entry.t ;
+            tempHtml += '<span class="estimate">Estimate daily / total : ' + msToHoursAndMinutes(entry.estimateMs / entry.t)  + " / "  +  msToHoursAndMinutes(entry.estimateMs) + '</span> ' ;
+            tempHtml += '<div class="ecount"> (' + entry.n + '/' + entry.t + ')</div>';
+          } else {
+             totalDailyEstimate +=  entry.estimateMs;
+             tempHtml += '<span class="estimate">Total estimate: ' + msToHoursAndMinutes(entry.estimateMs)  + '</span>  ';
+          }
+
+          entryDiv.innerHTML = tempHtml;
+          entryDiv.addEventListener('click', function () {
+          if (entry.type === 'task') {
+                  window.open(taskUrlPrefix + entry.id, entry.id);
+          } else {
+                  window.open(jobUrlPrefix + entry.id, entry.id);
+          }
+
+
+    
+          });
+
+          // Append the entry to the appropriate day
+          day.querySelector('.entries').appendChild(entryDiv);
+        }
+      } catch (error) {
+        debugger;
+        alert(error.message);
+      }
+    });
+
+    // insert totalDailyEstimate 
+
+if (totalDailyEstimate > warningEstimatMsDailymax && window.currentAssigned != null) {
+   day.querySelector('.dailyEstimate').innerHTML = '<span style="color:red">' + msToHoursAndMinutes(totalDailyEstimate)  + ' !!!</span>';
+} else {
+   day.querySelector('.dailyEstimate').innerHTML = "<span>" + msToHoursAndMinutes(totalDailyEstimate )  + "</span>"; 
+}
+  });
+}
+
+function getUniqueAssignedValues(entries) {
+  const assignedValues = entries.map((entry) => entry.assigned); // Extract assigned values
+  const uniqueAssignedValues = [...new Set(assignedValues)]; // Use Set to get unique values
+  return uniqueAssignedValues;
+}
+function addSevenDays(unixTimestamp) {
+  const date = new Date(unixTimestamp);
+  date.setDate(date.getDate() + 7); // Add 7 days
+  return date.getTime(); // Return the updated timestamp
+}
+
+function subSevenDays(unixTimestamp) {
+  const date = new Date(unixTimestamp);
+  date.setDate(date.getDate() - 7); // Subtract 7 days
+  return date.getTime(); // Return the updated timestamp
+}
+
+document.getElementById('today').addEventListener('click', function () {
+ window.currentStartDay = Date.now();
+  runthis(window.currentStartDay, window.currentAssigned);
+});
+
+document.getElementById('forward').addEventListener('click', function () {
+ window.currentStartDay = addSevenDays(window.currentStartDay);
+  runthis(window.currentStartDay, window.currentAssigned);
+});
+
+document.getElementById('back').addEventListener('click', function () {
+   window.currentStartDay = subSevenDays(window.currentStartDay);
+  runthis(window.currentStartDay, window.currentAssigned);
+});
+
+document.getElementById('showPlanned').addEventListener('click', function () {
+   changeShowPlanned();
+  runthis(window.currentStartDay, window.currentAssigned);
+});
+
+runthis(window.currentStartDay, window.currentAssigned);
+})();
+</script>
+
