@@ -333,7 +333,7 @@
             day.querySelector('.entries').innerHTML = ''; // Clear existing entries
             calendarEntries.forEach((entry) => {
 
-              const estimatedMs = entry.estimateMs;
+              let estimateMs = entry.estimateMs;
               try {
                 if (showPlanned === 0) {
                   // vis kun planlagt
@@ -488,12 +488,13 @@
 
         function subSevenDays(unixTimestamp) {
           const date = new Date(unixTimestamp);
-          date.setDate(date.getDate() - 7); // Subtract 7 days
+          date.setDate(date.getDate() - 7); // Subtract 7 days      
           return date.getTime(); // Return the updated timestamp
         }
 
         document.getElementById('today').addEventListener('click', function () {
           window.currentStartDay = Date.now();
+          sessionStorage.setItem('selectedDate', window.currentStartDay);
           runthis(window.currentStartDay, window.currentAssigned);
         });
 
@@ -501,11 +502,13 @@
           .getElementById('forward')
           .addEventListener('click', function () {
             window.currentStartDay = addSevenDays(window.currentStartDay);
+            sessionStorage.setItem('selectedDate', window.currentStartDay);
             runthis(window.currentStartDay, window.currentAssigned);
           });
 
         document.getElementById('back').addEventListener('click', function () {
           window.currentStartDay = subSevenDays(window.currentStartDay);
+          sessionStorage.setItem('selectedDate', window.currentStartDay);
           runthis(window.currentStartDay, window.currentAssigned);
         });
 
